@@ -57,23 +57,39 @@ app.get('/.well-known/oauth-authorization-server', (req, res) => {
     token_endpoint: `${base}/oauth/token`,
     registration_endpoint: `${base}/oauth/register`,
     response_types_supported: ['code'],
-    grant_types_supported: ['authorization_code'],
+    grant_types_supported: ['authorization_code', 'client_credentials'],
     code_challenge_methods_supported: ['S256'],
+    token_endpoint_auth_methods_supported: ['none', 'client_secret_post', 'client_secret_basic'],
+    scopes_supported: ['mcp'],
+  });
+});
+
+// Protected resource metadata
+app.get('/.well-known/oauth-protected-resource', (req, res) => {
+  const base = `https://binance-mcp-binance-mcp-server.up.railway.app`;
+  res.json({
+    resource: base,
+    authorization_servers: [base],
+    scopes_supported: ['mcp'],
+    bearer_methods_supported: ['header'],
   });
 });
 
 // Dynamic client registration
 app.post('/oauth/register', (req, res) => {
-  res.json({
-    client_id: 'binance-mcp-client',
+  res.status(201).json({
+    client_id: 'binance-mcp-client-' + Date.now(),
     client_secret: 'binance-mcp-secret',
     redirect_uris: req.body.redirect_uris || [],
+    grant_types: ['authorization_code'],
+    response_types: ['code'],
+    token_endpoint_auth_method: 'none',
   });
 });
 
 // Authorization endpoint - auto approve
 app.get('/oauth/authorize', (req, res) => {
-  const { redirect_uri, state, code_challenge } = req.query;
+  const { redirect_uri, state } = req.query;
   const code = 'binance-auth-code-' + Date.now();
   res.redirect(`${redirect_uri}?code=${code}&state=${state}`);
 });
@@ -81,9 +97,10 @@ app.get('/oauth/authorize', (req, res) => {
 // Token endpoint
 app.post('/oauth/token', (req, res) => {
   res.json({
-    access_token: 'binance-static-token',
-    token_type: 'bearer',
+    access_token: 'binance-static-token-' + Date.now(),
+    token_type: 'Bearer',
     expires_in: 86400,
+    scope: 'mcp',
   });
 });
 
