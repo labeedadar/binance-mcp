@@ -1,0 +1,14 @@
+{
+  "name": "binance-mcp-hosting",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "binance-mcp-server": "latest",
+    "@modelcontextprotocol/sdk": "1.29.0",
+    "express": "latest",
+    "cors": "latest"
+  }
+}
